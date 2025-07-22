@@ -46,5 +46,339 @@ localparam AUIPCI  = 7'b0010111;
 localparam LUII    = 7'b0110111;
 
 // insira aqui o seu código
+reg [3:0] actual_state;
+reg [3:0] next_state;
+
+//Lógica da saida
+always @(actual_state)begin
+    case (actual_state)
+        FETCH: begin
+            pc_write      = 1'b1;
+            ir_write      = 1'b1;
+            pc_source     = 1'b0;
+            reg_write     = 1'b0; //
+            memory_read   = 1'b1; 
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0;
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b00;
+            alu_src_b     = 2'b01;
+        end
+        DECODE: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; // 
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            memory_to_reg = 1'b0; //
+            alu_src_a     = 2'b10;
+            alu_src_b     = 2'b10;
+        end
+        MEMADR: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b01;
+            alu_src_b     = 2'b10;
+        end
+        MEMREAD: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b1;
+            is_immediate  = 1'b0; // 
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b1;
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b00; //
+            alu_src_a     = 2'b00; //
+            alu_src_b     = 2'b00; //
+        end
+        MEMWB: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b1;
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            memory_to_reg = 1'b1; 
+            aluop         = 2'b00; //
+            alu_src_a     = 2'b00; //
+            alu_src_b     = 2'b00; //
+        end
+        MEMWRITE: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b1; 
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b1;
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b00; //
+            alu_src_a     = 2'b00; //
+            alu_src_b     = 2'b00; //
+        end
+        EXECUTER: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b10;
+            alu_src_a     = 2'b01;
+            alu_src_b     = 2'b00;
+        end
+        ALUWB: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b1;
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            memory_to_reg = 1'b0; 
+            aluop         = 2'b00; //
+            alu_src_a     = 2'b00; //
+            alu_src_b     = 2'b00; //
+        end
+        EXECUTEI: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b1;
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b10; 
+            alu_src_a     = 2'b01; 
+            alu_src_b     = 2'b10; 
+        end
+        JAL: begin
+            pc_write      = 1'b1;
+            ir_write      = 1'b0; //
+            pc_source     = 1'b1;
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b10;
+            alu_src_b     = 2'b01;
+        end
+        BRANCH: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b1; 
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b1;
+            lorD          = 1'b0; //
+            aluop         = 2'b01;
+            alu_src_a     = 2'b01;
+            alu_src_b     = 2'b00;
+        end
+        JALR: begin
+            pc_write      = 1'b1;
+            ir_write      = 1'b0; //
+            pc_source     = 1'b1;
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b1; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b10;
+            alu_src_b     = 2'b01;
+        end
+        AUIPC: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b10; // Está diferente Tb e Diagrama
+            alu_src_b     = 2'b10;
+        end
+        LUI: begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b11;
+            alu_src_b     = 2'b10;
+        end
+        JALR_PC : begin
+            pc_write      = 1'b0; //
+            ir_write      = 1'b0; //
+            pc_source     = 1'b0; //
+            reg_write     = 1'b0; //
+            memory_read   = 1'b0; //
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b01;
+            alu_src_b     = 2'b10;
+        end
+        default : begin
+            pc_write      = 1'b1;
+            ir_write      = 1'b1;
+            pc_source     = 1'b0;
+            reg_write     = 1'b0; //
+            memory_read   = 1'b1; 
+            is_immediate  = 1'b0; //
+            memory_write  = 1'b0; //
+            pc_write_cond = 1'b0; //
+            lorD          = 1'b0;
+            memory_to_reg = 1'b0; //
+            aluop         = 2'b00;
+            alu_src_a     = 2'b00;
+            alu_src_b     = 2'b01;
+        end
+    endcase
+    
+end
+
+//Lógica de próximo estado
+always @(actual_state, instruction_opcode)begin
+    case (actual_state)
+        FETCH: begin
+            next_state <= DECODE;
+        end
+        DECODE: begin
+            if (instruction_opcode == BRANCHI) begin
+                next_state <= BRANCH;
+            end
+            else if ((instruction_opcode == LW) || instruction_opcode == SW) begin
+                next_state <= MEMADR;
+            end
+            else if (instruction_opcode == AUIPCI) begin
+                next_state <= AUIPC;  
+            end
+            else if (instruction_opcode == JALI) begin
+                next_state <= JAL;  
+            end
+            else if (instruction_opcode == ITYPE) begin
+                next_state <= EXECUTEI;  
+            end
+            else if (instruction_opcode == RTYPE) begin
+                next_state <= EXECUTER;  
+            end
+            else if (instruction_opcode == LUII) begin
+                next_state <= LUI;  
+            end
+            else if (instruction_opcode == JALRI) begin
+                next_state <= JALR_PC;  
+            end
+        end
+        MEMADR: begin
+            if (instruction_opcode == LW) begin
+                next_state <= MEMREAD;
+            end
+            else if (instruction_opcode == SW) begin
+                next_state <= MEMWRITE;
+            end
+        end
+        MEMREAD: begin
+            next_state <= MEMWB;
+        end
+        MEMWB: begin
+            next_state <= FETCH;
+        end
+        MEMWRITE: begin
+            next_state <= FETCH;
+        end
+        EXECUTER: begin
+            next_state <= ALUWB;
+        end
+        ALUWB   : begin
+            next_state <= FETCH;
+        end
+        EXECUTEI: begin
+            next_state <= ALUWB;
+        end
+        JAL     : begin
+            next_state <= ALUWB;
+        end
+        BRANCH  : begin
+            next_state <= FETCH;
+        end
+        JALR    : begin
+            next_state <= ALUWB;
+        end
+        AUIPC   : begin
+            next_state <= ALUWB;
+        end
+        LUI     : begin
+            next_state <= ALUWB;  
+        end
+        JALR_PC : begin
+            next_state <= JALR; 
+        end
+        default : begin
+            next_state <= FETCH; 
+        end
+    endcase
+end
+
+//Lógica de transição de estados
+always @(posedge clk, negedge rst_n) begin
+    if (!rst_n) begin
+        actual_state <= FETCH; 
+    end
+    else begin
+       actual_state <= next_state; 
+    end
+end
 
 endmodule
